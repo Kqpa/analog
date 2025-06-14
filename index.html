@@ -33,19 +33,12 @@
       border-radius: 8px;
       font-family: inherit;
       font-weight: normal;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
     }
-    #toggleSkin {
-      width: 40px;
-      height: 40px;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    /* Give Reveal button extra horizontal padding */
-    #reveal {
-      padding-left: 30px;
-      padding-right: 30px;
+    .controls button:active,
+    .controls button.active {
+      transform: translateY(2px);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
     }
     #toggleSkin {
       width: 40px;
@@ -83,10 +76,15 @@
     let currentMinute = 0;
     let showNumbers = false;
 
+    // Buttons
+    const randomizeBtn = document.getElementById('randomize');
+    const revealBtn = document.getElementById('reveal');
+    const toggleBtn = document.getElementById('toggleSkin');
+
     function drawClock(hour, minute) {
       ctx.clearRect(-radius, -radius, canvas.width, canvas.height);
       drawFace();
-      if (showNumbers) drawNumbers(); else drawTicks();
+      showNumbers ? drawNumbers() : drawTicks();
       drawHands(hour, minute);
     }
 
@@ -155,24 +153,36 @@
 
     function revealTime() {
       const digitalDiv = document.getElementById('digitalTime');
-      digitalDiv.textContent = digitalDiv.textContent 
-        ? '' 
+      digitalDiv.textContent = digitalDiv.textContent
+        ? ''
         : `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
     }
 
+    function simulateClick(button) {
+      button.classList.add('active');
+      setTimeout(() => button.classList.remove('active'), 150);
+    }
+
     // Button click handlers
-    document.getElementById('randomize').addEventListener('click', randomizeTime);
-    document.getElementById('reveal').addEventListener('click', revealTime);
-    document.getElementById('toggleSkin').addEventListener('click', () => {
+    randomizeBtn.addEventListener('click', randomizeTime);
+    revealBtn.addEventListener('click', revealTime);
+    toggleBtn.addEventListener('click', () => {
       showNumbers = !showNumbers;
       drawClock(currentHour, currentMinute);
     });
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') randomizeTime();
-      if (e.key === 'ArrowLeft') revealTime();
+      if (e.key === 'ArrowRight') {
+        simulateClick(randomizeBtn);
+        randomizeTime();
+      }
+      if (e.key === 'ArrowLeft') {
+        simulateClick(revealBtn);
+        revealTime();
+      }
       if (e.key.toLowerCase() === 'r') {
+        simulateClick(toggleBtn);
         showNumbers = !showNumbers;
         drawClock(currentHour, currentMinute);
       }
