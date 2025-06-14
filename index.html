@@ -13,7 +13,7 @@
       height: 100vh;
       margin: 0;
       background-color: #f0f0f0;
-      font-family: Trebuchet MS, sans-serif;
+      font-family: Arial, sans-serif;
     }
     canvas {
       background-color: white;
@@ -42,6 +42,19 @@
       align-items: center;
       justify-content: center;
     }
+    /* Give Reveal button extra horizontal padding */
+    #reveal {
+      padding-left: 30px;
+      padding-right: 30px;
+    }
+    #toggleSkin {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     #digitalTime {
       margin-top: 10px;
       font-size: 1.5rem;
@@ -52,13 +65,11 @@
   </style>
 </head>
 <body>
-  <div class="clock-container">
-    <canvas id="clock" width="400" height="400"></canvas>
-  </div>
+  <canvas id="clock" width="400" height="400"></canvas>
   <div class="controls">
-    <button id="randomize">Randomize Time</button>
-    <button id="reveal">Reveal Time</button>
-    <button id="toggleSkin">↻</button>
+    <button id="reveal">[←] Reveal Time</button>
+    <button id="randomize">[→] Randomize Time</button>
+    <button id="toggleSkin">[r] ↻</button>
   </div>
   <div id="digitalTime"></div>
 
@@ -144,9 +155,12 @@
 
     function revealTime() {
       const digitalDiv = document.getElementById('digitalTime');
-      digitalDiv.textContent = digitalDiv.textContent ? '' : `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+      digitalDiv.textContent = digitalDiv.textContent 
+        ? '' 
+        : `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
     }
 
+    // Button click handlers
     document.getElementById('randomize').addEventListener('click', randomizeTime);
     document.getElementById('reveal').addEventListener('click', revealTime);
     document.getElementById('toggleSkin').addEventListener('click', () => {
@@ -154,6 +168,17 @@
       drawClock(currentHour, currentMinute);
     });
 
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') randomizeTime();
+      if (e.key === 'ArrowLeft') revealTime();
+      if (e.key.toLowerCase() === 'r') {
+        showNumbers = !showNumbers;
+        drawClock(currentHour, currentMinute);
+      }
+    });
+
+    // Initial draw
     randomizeTime();
   </script>
 </body>
