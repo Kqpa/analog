@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analog Clock Practice</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+      font-family: Trebuchet MS, sans-serif;
+    }
+    canvas {
+      background-color: white;
+      border: 2px solid #333;
+      border-radius: 50%;
+    }
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .controls button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 8px;
+      font-family: inherit;
+      font-weight: normal;
+    }
+    #toggleSkin {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #digitalTime {
+      margin-top: 10px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      height: 1.5rem;
+      line-height: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="clock-container">
+    <canvas id="clock" width="400" height="400"></canvas>
+  </div>
+  <div class="controls">
+    <button id="randomize">Randomize Time</button>
+    <button id="reveal">Reveal Time</button>
+    <button id="toggleSkin">↻</button>
+  </div>
+  <div id="digitalTime"></div>
+
+  <script>
+    const canvas = document.getElementById('clock');
+    const ctx = canvas.getContext('2d');
+    const radius = canvas.width / 2;
+    ctx.translate(radius, radius);
+
+    let currentHour = 0;
+    let currentMinute = 0;
+    let showNumbers = false;
+
+    function drawClock(hour, minute) {
+      ctx.clearRect(-radius, -radius, canvas.width, canvas.height);
+      drawFace();
+      if (showNumbers) drawNumbers(); else drawTicks();
+      drawHands(hour, minute);
+    }
+
+    function drawFace() {
+      ctx.beginPath();
+      ctx.arc(0, 0, radius - 5, 0, 2 * Math.PI);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    function drawTicks() {
+      for (let i = 0; i < 12; i++) {
+        const angle = (i * Math.PI) / 6;
+        const inner = radius * 0.85;
+        const outer = radius * 0.95;
+        ctx.beginPath();
+        ctx.moveTo(inner * Math.cos(angle), inner * Math.sin(angle));
+        ctx.lineTo(outer * Math.cos(angle), outer * Math.sin(angle));
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#000';
+        ctx.stroke();
+        ctx.closePath();
+      }
+    }
+
+    function drawNumbers() {
+      ctx.fillStyle = '#000';
+      ctx.font = `${radius * 0.15}px Arial`;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
+      for (let num = 1; num <= 12; num++) {
+        const angle = (num * Math.PI) / 6;
+        const x = radius * 0.85 * Math.cos(angle - Math.PI / 2);
+        const y = radius * 0.85 * Math.sin(angle - Math.PI / 2);
+        ctx.fillText(num.toString(), x, y);
+      }
+    }
+
+    function drawHands(hour, minute) {
+      const hourAngle = ((hour % 12) + minute / 60) * (Math.PI / 6);
+      drawHand(hourAngle, radius * 0.5, 6);
+      const minuteAngle = (minute * Math.PI) / 30;
+      drawHand(minuteAngle, radius * 0.75, 4);
+    }
+
+    function drawHand(angle, length, width) {
+      ctx.beginPath();
+      ctx.lineWidth = width;
+      ctx.lineCap = 'round';
+      ctx.moveTo(0, 0);
+      ctx.lineTo(
+        length * Math.cos(angle - Math.PI / 2),
+        length * Math.sin(angle - Math.PI / 2)
+      );
+      ctx.stroke();
+      ctx.closePath();
+    }
+
+    function randomizeTime() {
+      currentHour = Math.floor(Math.random() * 12);
+      currentMinute = Math.floor(Math.random() * 60);
+      document.getElementById('digitalTime').textContent = '';
+      drawClock(currentHour, currentMinute);
+    }
+
+    function revealTime() {
+      const digitalDiv = document.getElementById('digitalTime');
+      digitalDiv.textContent = digitalDiv.textContent ? '' : `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+    }
+
+    document.getElementById('randomize').addEventListener('click', randomizeTime);
+    document.getElementById('reveal').addEventListener('click', revealTime);
+    document.getElementById('toggleSkin').addEventListener('click', () => {
+      showNumbers = !showNumbers;
+      drawClock(currentHour, currentMinute);
+    });
+
+    randomizeTime();
+  </script>
+</body>
+</html>
